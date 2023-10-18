@@ -1,10 +1,11 @@
 const router = require("express").Router();
 const Event = require("../models/Event");
 const yup = require("yup");
+const checkToken = require("../utils/checkToken")
 
-router.post("/new-event", async (req, res) => {
+router.post("/new-event/:id", checkToken, async (req, res) => {
   try {
-    const { title, date_of_event, init_time, end_time, description } = req.body;
+    const { title, date_of_event, init_time, end_time, description, created_at } = req.body;
 
     const eventSchema = yup.object().shape({
       title: yup.string().required('O campo título é obrigatório'),
@@ -19,10 +20,11 @@ router.post("/new-event", async (req, res) => {
         .matches(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Horário de término inválido')
         .test('is-valid-end-time', 'O horário de término deve ser maior que o de início', function (value) {
           const initTime = this.parent.init_time;
-          if (!initTime || !value) return true; // Permitir valores vazios, pois já é tratado por 'required'
+          if (!initTime || !value) return true; 
           return value > initTime;
         }),
       description: yup.string(),
+      created_at: yup.date().default(new Date())
     });
 
     await eventSchema.validate(req.body, { abortEarly: false });
@@ -33,6 +35,7 @@ router.post("/new-event", async (req, res) => {
       init_time,
       end_time,
       description,
+      created_at
     });
 
     await newEvent.save();

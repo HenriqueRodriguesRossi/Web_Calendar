@@ -12,6 +12,9 @@ app.use(cors())
 const EventRouter = require("./controllers/EventController")
 app.use(EventRouter)
 
+const UserRouter = require("./controllers/UserController")
+app.use(UserRouter)
+
 app.listen(8080, ()=>{
     console.log("Servidor rodando na porta 8080!")
 })
